@@ -19,6 +19,7 @@ _Backend generated using the awesome [HONC project](https://honc.dev/)_
 - [React](https://reactjs.org/) - A JavaScript library for building user interfaces
 - [shadcn/ui](https://ui.shadcn.com/) - Re-usable components built with Radix UI and Tailwind CSS
 - [TanStack Router](https://tanstack.com/router/v1) - Type-safe routing for React applications
+- Hono RPC client for type-safe API calls
 
 ## Getting Started
 

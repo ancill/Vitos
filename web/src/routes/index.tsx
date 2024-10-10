@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import { useState } from "react";
+import { client } from "../api/client";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -10,7 +11,9 @@ function Index() {
   const [message, setMessage] = useState("");
 
   const fetchHello = async () => {
-    const response = await fetch("/api/hello");
+    const response = await client.hello.$post({
+      json: { name: "VITOS" },
+    });
     const data = await response.json();
     setMessage(data.message);
   };

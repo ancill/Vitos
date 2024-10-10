@@ -29,4 +29,5 @@ app.post("/api/user", async (c) => {
   return c.text("user: " + name + "inserted");
 });
 
+export type AppType = typeof app;
 export default app;
