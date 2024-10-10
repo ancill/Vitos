@@ -1,18 +1,18 @@
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import * as schema from "./db/schema";
-
+import { instrument } from "@fiberplane/hono-otel";
 type Bindings = {
   DB: D1Database;
 };
 
 const hono = new Hono<{ Bindings: Bindings }>();
 
-const hello = hono.get("/", (c) => {
+const hello = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-const users = hono
+const users = new Hono<{ Bindings: Bindings }>()
   .get("/", async (c) => {
     const db = drizzle(c.env.DB);
     const users = await db.select().from(schema.users);
@@ -29,7 +29,10 @@ const users = hono
     return c.text("user: " + name + "inserted");
   });
 
-const app = hono.route("/api/hello", hello).route("/api/users", users);
+const app = new Hono<{ Bindings: Bindings }>()
+  .basePath("/api")
+  .route("/hello", hello)
+  .route("/users", users);
 
 export type AppType = typeof app;
-export default app;
+export default instrument(app);

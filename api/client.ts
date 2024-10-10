@@ -12,7 +12,7 @@ const seedData: User[] = [
 const seedDatabase = async () => {
   try {
     for (const user of seedData) {
-      const response = await fetch("http://localhost:8787/user", {
+      const response = await fetch("http://localhost:8787/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),

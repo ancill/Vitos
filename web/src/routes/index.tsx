@@ -11,7 +11,7 @@ function Index() {
   const [message, setMessage] = useState("");
 
   const fetchHello = async () => {
-    const response = await client.hello.$get();
+    const response = await client.api.hello.$get();
     const data = await response.text();
     setMessage(data);
   };

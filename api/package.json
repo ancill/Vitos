@@ -7,10 +7,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply d1-database --local",
     "db:migrate:prod": "ENVIROMENT=production drizzle-kit migrate",
-    "db:seed": "tsx client.ts"
+    "db:seed": "tsx client.ts",
+    "studio:fiber": "npx @fiberplane/studio"
   },
   "dependencies": {
     "@cloudflare/d1": "^1.4.1",
+    "@fiberplane/hono-otel": "^0.2.0",
     "@hono/zod-validator": "^0.4.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
