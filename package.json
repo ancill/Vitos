@@ -1,0 +1,14 @@
+{
+  "name": "Vitos",
+  "version": "1.0.0",
+  "description": "Vitos is collection of tools for building web apps",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev": "pnpm run -r --parallel dev",
+    "build": "pnpm run -r build",
+    "deploy": "pnpm run -r deploy"
+  }
+}
