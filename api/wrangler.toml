@@ -1,11 +1,11 @@
-name = "honc-d1-template"
+name = "vitos-api"
 compatibility_date = "2024-07-25"
 compatibility_flags = [ "nodejs_compat" ]
 
 [[d1_databases]]
 binding = "DB"
-database_name = ""
-database_id = ""
+database_name = "d1-database"
+database_id = "1231fwsdfsdfs"
 migrations_dir = "drizzle/migrations"
 
 
