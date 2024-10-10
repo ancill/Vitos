@@ -11,11 +11,9 @@ function Index() {
   const [message, setMessage] = useState("");
 
   const fetchHello = async () => {
-    const response = await client.hello.$post({
-      json: { name: "VITOS" },
-    });
-    const data = await response.json();
-    setMessage(data.message);
+    const response = await client.hello.$get();
+    const data = await response.text();
+    setMessage(data);
   };
 
   return (
