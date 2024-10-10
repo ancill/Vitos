@@ -19,7 +19,7 @@ const seedDatabase = async () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to insert user: ${response.statusText}");
+        throw new Error(`Failed to insert user: ${response.statusText}`);
       }
 
       const data = await response.text();

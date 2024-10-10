@@ -9,12 +9,13 @@
     "db:migrate:prod": "ENVIROMENT=production drizzle-kit migrate",
     "db:seed": "tsx client.ts",
     "studio:fiber": "npx @fiberplane/studio",
-    "studio:drizzle": "drizzle-kit studio"
+    "studio:drizzle": "npx drizzle-kit studio"
   },
   "dependencies": {
     "@cloudflare/d1": "^1.4.1",
     "@fiberplane/hono-otel": "^0.2.0",
     "@hono/zod-validator": "^0.4.1",
+    "@libsql/client": "^0.14.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.5.0"
