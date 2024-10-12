@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
-import { client } from "@/lib/apii";
+import { client } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
