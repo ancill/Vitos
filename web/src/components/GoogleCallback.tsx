@@ -8,7 +8,7 @@ export function GoogleCallback() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
+    const code = urlParams.get("token");
 
     if (code) {
       handleCallback(code, {

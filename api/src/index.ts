@@ -11,6 +11,7 @@ type Bindings = {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   REDIRECT_URI: string;
+  FRONTEND_URL: string;
 };
 
 const hello = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
@@ -41,58 +42,87 @@ const googleAuth = new Hono<{ Bindings: Bindings }>()
     return c.redirect(authUrl);
   })
   .get("/callback", async (c) => {
-    const code = c.req.query("code");
-    if (!code) {
-      return c.json({ error: "No code provided" }, 400);
-    }
-
-    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id: c.env.GOOGLE_CLIENT_ID,
-        client_secret: c.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: c.env.REDIRECT_URI,
-        grant_type: "authorization_code",
-      }),
-    });
-
-    const { access_token } = (await tokenResponse.json()) as {
-      access_token: string;
-    };
-
-    const userInfoResponse = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
+    try {
+      const code = c.req.query("code");
+      if (!code) {
+        return c.redirect(`${c.env.FRONTEND_URL}?error=no_code`, 302);
       }
-    );
 
-    const { id, email, name } = (await userInfoResponse.json()) as {
-      id: string;
-      email: string;
-      name: string;
-    };
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          code,
+          client_id: c.env.GOOGLE_CLIENT_ID,
+          client_secret: c.env.GOOGLE_CLIENT_SECRET,
+          redirect_uri: c.env.REDIRECT_URI,
+          grant_type: "authorization_code",
+        }),
+      });
 
-    const db = drizzle(c.env.DB);
-    let user = await db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.googleId, id))
-      .get();
+      if (!tokenResponse.ok) {
+        console.error("Token exchange failed:", await tokenResponse.text());
+        return c.redirect(
+          `${c.env.FRONTEND_URL}?error=token_exchange_failed`,
+          302
+        );
+      }
 
-    if (!user) {
-      await db.insert(schema.users).values({ googleId: id, email, name });
-      user = await db
-        .select()
-        .from(schema.users)
-        .where(eq(schema.users.googleId, id))
-        .get();
+      const { access_token } = (await tokenResponse.json()) as {
+        access_token: string;
+      };
+
+      const userInfoResponse = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+
+      if (!userInfoResponse.ok) {
+        console.error(
+          "User info retrieval failed:",
+          await userInfoResponse.text()
+        );
+        return c.redirect(`${c.env.FRONTEND_URL}?error=user_info_failed`, 302);
+      }
+
+      const { id, email, name } = (await userInfoResponse.json()) as {
+        id: string;
+        email: string;
+        name: string;
+      };
+
+      const db = drizzle(c.env.DB);
+      let user;
+
+      try {
+        user = await db
+          .select()
+          .from(schema.users)
+          .where(eq(schema.users.googleId, id))
+          .get();
+
+        if (!user) {
+          await db.insert(schema.users).values({ googleId: id, email, name });
+          user = await db
+            .select()
+            .from(schema.users)
+            .where(eq(schema.users.googleId, id))
+            .get();
+        }
+      } catch (dbError) {
+        console.error("Database operation failed:", dbError);
+        // TODO: make this url avaliable on frontend
+        return c.redirect(`${c.env.FRONTEND_URL}?error=database_error`, 302);
+      }
+
+      const token = await sign({ id: user?.id }, c.env.JWT_SECRET);
+      return c.redirect(`${c.env.FRONTEND_URL}/auth/?token=${token}`, 302);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      return c.redirect(`${c.env.FRONTEND_URL}?error=unexpected_error`, 302);
     }
-
-    const token = await sign({ id: user?.id }, c.env.JWT_SECRET);
-    return c.json({ token });
   });
 
 const protectedRoutes = new Hono<{ Bindings: Bindings }>()
@@ -100,9 +130,12 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
     const jwtMiddleware = jwt({
       secret: c.env.JWT_SECRET,
     });
+    console.log(c);
     return jwtMiddleware(c, next);
   })
-  .get("/protected", (c) => c.text("This is a protected route"));
+  .get("/protected", (c) => {
+    return c.text(c.get("jwtPayload"));
+  });
 
 const app = new Hono<{ Bindings: Bindings }>()
   .basePath("/api")

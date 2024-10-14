@@ -19,9 +19,7 @@ export function useAuth() {
 
   const handleCallback = useMutation<AuthResponse, Error, string>({
     mutationFn: async (code: string) => {
-      const response = await client.api.google.callback.$get({
-        query: { code },
-      });
+      const response = await client.api.auth.protected.$get(code);
       const token = await response.json();
 
       return token;

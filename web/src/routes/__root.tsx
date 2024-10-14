@@ -1,14 +1,8 @@
-import {
-  createRootRoute,
-  createRoute,
-  lazyRouteComponent,
-  Link,
-  Outlet,
-} from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthButton } from "@/components/AuthButton";
 
-const rootRoute = createRootRoute({
+export const Route = createRootRoute({
   component: () => {
     return (
       <>
@@ -30,11 +24,3 @@ const rootRoute = createRootRoute({
     );
   },
 });
-
-const googleCallbackRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/auth/google/callback",
-  component: lazyRouteComponent(() => import("@/components/GoogleCallback")),
-});
-
-export const Route = rootRoute.addChildren([googleCallbackRoute]);
