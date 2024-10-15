@@ -118,7 +118,7 @@ const googleAuth = new Hono<{ Bindings: Bindings }>()
       }
 
       const token = await sign({ id: user?.id }, c.env.JWT_SECRET);
-      return c.redirect(`${c.env.FRONTEND_URL}/auth/?token=${token}`, 302);
+      return c.redirect(`${c.env.FRONTEND_URL}/?token=${token}`, 302);
     } catch (error) {
       console.error("Unexpected error:", error);
       return c.redirect(`${c.env.FRONTEND_URL}?error=unexpected_error`, 302);
