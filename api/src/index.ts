@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { decode, sign, verify, jwt } from "hono/jwt";
 import * as schema from "./db/schema";
 import { instrument } from "@fiberplane/hono-otel";
+import { HTTPException } from "hono/http-exception";
 
 type Bindings = {
   DB: D1Database;
@@ -17,24 +18,6 @@ type Bindings = {
 const hello = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
   return c.text("Hello Hono!");
 });
-
-// const users = new Hono<{ Bindings: Bindings }>()
-//   .get("/", async (c) => {
-//     const db = drizzle(c.env.DB);
-//     const users = await db.select().from(schema.users);
-//     return c.json({ users });
-//   })
-//   .post("/", async (c) => {
-//     const db = drizzle(c.env.DB);
-//     const { name, email } = await c.req.json();
-
-//     await db.insert(schema.users).values({
-//       name: name,
-//       email: email,
-
-//     });
-//     return c.text("user: " + name + "inserted");
-//   });
 
 const googleAuth = new Hono<{ Bindings: Bindings }>()
   .get("/", async (c) => {
@@ -130,18 +113,48 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
     const jwtMiddleware = jwt({
       secret: c.env.JWT_SECRET,
     });
-    console.log(c);
     return jwtMiddleware(c, next);
   })
-  .get("/protected", (c) => {
-    return c.text(c.get("jwtPayload"));
+  .get("/user", async (c) => {
+    const db = drizzle(c.env.DB);
+    const { id } = c.get("jwtPayload");
+    let user;
+    try {
+      user = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.id, id))
+        .get();
+    } catch (dbError) {
+      throw new HTTPException(401, {
+        message: "Database operation failed:",
+        cause: dbError,
+      });
+    }
+    if (!user) {
+      return c.json(
+        {
+          error: "User not found",
+        },
+        404
+      );
+    }
+
+    return c.json(user, 200);
   });
 
 const app = new Hono<{ Bindings: Bindings }>()
   .basePath("/api")
   .route("/hello", hello)
   .route("/google", googleAuth)
-  .route("/auth", protectedRoutes);
+  .route("/private", protectedRoutes)
+  .onError((err, c) => {
+    if (err instanceof HTTPException) {
+      return err.getResponse();
+    }
+
+    return c.text("error");
+  });
 
 export type AppType = typeof app;
 export default instrument(app);
