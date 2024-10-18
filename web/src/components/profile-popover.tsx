@@ -8,16 +8,21 @@ import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatedGreeting } from "./greeting";
+import { useUser } from "@/hooks/useUser";
 
-export function ProfilePopover({user}: {user: }) {
+export function ProfilePopover() {
   const navigate = useNavigate();
-  const username = "John Doe"; // Replace with actual username logic
-  const email = "john.doe@example.com"; // Replace with actual email logic
+  const { data, error } = useUser();
+  const username = data?.name ?? "John Doe";
+  const email = data?.email;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate({ to: "/" });
   };
+
+  console.log(error?.message);
+  console.log(data);
 
   return (
     <div className="flex items-center justify-center">

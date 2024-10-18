@@ -132,12 +132,15 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
       });
     }
     if (!user) {
-      return c.json(
-        {
-          error: "User not found",
-        },
-        404
-      );
+      // return c.json(
+      //   {
+      //     error: "User not found",
+      //   },
+      //   404
+      // );
+      throw new HTTPException(401, {
+        message: "User not found",
+      });
     }
 
     return c.json(user, 200);

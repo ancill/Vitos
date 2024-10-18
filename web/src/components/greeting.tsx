@@ -20,7 +20,7 @@ export function AnimatedGreeting({ username }: { username: string }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold mb-4"
+          className="text-lg font-bold"
         >
           Hey {username} 👋
         </motion.div>

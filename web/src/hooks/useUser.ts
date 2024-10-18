@@ -20,14 +20,12 @@ export function useUser() {
           }
         )
         .then(async (res) => {
-          if (res.status === 404) {
-            const data: { error: string } = await res.json();
-            console.log(data.error);
-          }
+          // if (res.status === 404) {
+          //   const data: { error: string } = await res.json();
+          //   console.log(data.error);
+          // }
 
           return await res.json();
         }),
-
-    enabled: false,
   });
 }
