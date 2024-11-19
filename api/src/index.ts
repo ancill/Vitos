@@ -5,7 +5,7 @@ import { decode, sign, verify, jwt } from "hono/jwt";
 import * as schema from "./db/schema";
 import { instrument } from "@fiberplane/hono-otel";
 import { HTTPException } from "hono/http-exception";
-import { getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
 type Bindings = {
   DB: D1Database;
@@ -18,6 +18,15 @@ type Bindings = {
 
 const hello = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
   return c.text("Hello Hono!");
+});
+
+const logout = new Hono<{ Bindings: Bindings }>().get("/", (c) => {
+  deleteCookie(c, "token", {
+    path: "/",
+    secure: true,
+  });
+
+  return c.redirect(c.env.FRONTEND_URL);
 });
 
 const googleAuth = new Hono<{ Bindings: Bindings }>()
@@ -153,6 +162,7 @@ const app = new Hono<{ Bindings: Bindings }>()
   .basePath("/api")
   .route("/hello", hello)
   .route("/google", googleAuth)
+  .route("/logout", logout)
   .route("/private", protectedRoutes)
   .onError((err, c) => {
     if (err instanceof HTTPException) {

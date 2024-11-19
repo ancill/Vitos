@@ -6,19 +6,17 @@ import {
 } from "@radix-ui/react-popover";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+
 import { AnimatedGreeting } from "./greeting";
 import { useUser } from "@/hooks/useUser";
 
 export function ProfilePopover() {
-  const navigate = useNavigate();
   const { data } = useUser();
   const username = data?.name ?? "John Doe";
   const email = data?.email;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate({ to: "/" });
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/logout`;
   };
 
   return (
