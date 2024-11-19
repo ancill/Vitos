@@ -5,6 +5,7 @@ import { decode, sign, verify, jwt } from "hono/jwt";
 import * as schema from "./db/schema";
 import { instrument } from "@fiberplane/hono-otel";
 import { HTTPException } from "hono/http-exception";
+import { getCookie, setCookie } from "hono/cookie";
 
 type Bindings = {
   DB: D1Database;
@@ -102,11 +103,12 @@ const googleAuth = new Hono<{ Bindings: Bindings }>()
 
       const token = await sign({ id: user?.id }, c.env.JWT_SECRET);
 
-      // Set the JWT token as a secure HTTP-only cookie
-      c.header(
-        "Set-Cookie",
-        `token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/`
-      );
+      setCookie(c, "token", token, {
+        sameSite: "Strict",
+        httpOnly: true,
+        maxAge: 10000,
+        secure: true,
+      });
       return c.redirect(c.env.FRONTEND_URL, 302);
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -118,6 +120,7 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
   .use("/*", (c, next) => {
     const jwtMiddleware = jwt({
       secret: c.env.JWT_SECRET,
+      cookie: "token",
     });
     return jwtMiddleware(c, next);
   })
@@ -138,12 +141,6 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
       });
     }
     if (!user) {
-      // return c.json(
-      //   {
-      //     error: "User not found",
-      //   },
-      //   404
-      // );
       throw new HTTPException(401, {
         message: "User not found",
       });

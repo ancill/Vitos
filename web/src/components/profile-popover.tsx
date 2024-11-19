@@ -12,7 +12,7 @@ import { useUser } from "@/hooks/useUser";
 
 export function ProfilePopover() {
   const navigate = useNavigate();
-  const { data, error } = useUser();
+  const { data } = useUser();
   const username = data?.name ?? "John Doe";
   const email = data?.email;
 
