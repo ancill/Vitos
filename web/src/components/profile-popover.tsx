@@ -21,9 +21,6 @@ export function ProfilePopover() {
     navigate({ to: "/" });
   };
 
-  console.log(error?.message);
-  console.log(data);
-
   return (
     <div className="flex items-center justify-center">
       <AnimatedGreeting username={username} />
@@ -42,7 +39,7 @@ export function ProfilePopover() {
             </AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <PopoverContent className="w-80">
+        <PopoverContent className="w-80 bg-white p-4 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="grid gap-4">
             <div className="space-y-2">
               <h4 className="font-medium leading-none">{username}</h4>

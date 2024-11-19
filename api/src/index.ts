@@ -101,7 +101,13 @@ const googleAuth = new Hono<{ Bindings: Bindings }>()
       }
 
       const token = await sign({ id: user?.id }, c.env.JWT_SECRET);
-      return c.redirect(`${c.env.FRONTEND_URL}/?token=${token}`, 302);
+
+      // Set the JWT token as a secure HTTP-only cookie
+      c.header(
+        "Set-Cookie",
+        `token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/`
+      );
+      return c.redirect(c.env.FRONTEND_URL, 302);
     } catch (error) {
       console.error("Unexpected error:", error);
       return c.redirect(`${c.env.FRONTEND_URL}?error=unexpected_error`, 302);
