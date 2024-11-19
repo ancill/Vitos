@@ -3,20 +3,23 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@radix-ui/react-popover";
-import { Button } from "./ui/button";
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
+import type { User } from "../types";
 import { AnimatedGreeting } from "./greeting";
-import { useUser } from "@/hooks/useUser";
 
-export function ProfilePopover() {
-  const { data } = useUser();
-  const username = data?.name ?? "John Doe";
-  const email = data?.email;
+interface ProfilePopoverProps {
+  user: User;
+}
+
+export function ProfilePopover({ user }: ProfilePopoverProps) {
+  const username = user.name ?? "John Doe";
+  const email = user.email;
 
   const handleLogout = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/logout`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/logout`;
   };
 
   return (
@@ -37,7 +40,7 @@ export function ProfilePopover() {
             </AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <PopoverContent className="w-80 bg-white p-4 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
+        <PopoverContent className="w-80">
           <div className="grid gap-4">
             <div className="space-y-2">
               <h4 className="font-medium leading-none">{username}</h4>

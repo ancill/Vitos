@@ -1,6 +1,6 @@
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { AuthButton } from "@/components/auth-button";
+import { AuthButton } from "@/features/auth/components/auth-button";
 
 export const Route = createRootRoute({
   component: () => {
@@ -9,7 +9,7 @@ export const Route = createRootRoute({
         <div className="p-2 flex gap-2 items-center">
           <Link to="/" className="[&.active]:font-bold">
             Home
-          </Link>{" "}
+          </Link>
           <Link to="/about" className="[&.active]:font-bold">
             About
           </Link>

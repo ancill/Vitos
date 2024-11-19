@@ -4,7 +4,7 @@ import { deleteCookie } from "hono/cookie";
 
 import { handleGoogleCallback } from "./handlers/auth";
 
-import { createAuthMiddleware, errorHandler } from "./middleware";
+import { errorHandler } from "./middleware";
 import { getUserProfile } from "./handlers/user";
 import { jwt } from "hono/jwt";
 
@@ -47,7 +47,6 @@ const protectedRoutes = new Hono<{ Bindings: Bindings }>()
   })
   .get("/me", getUserProfile);
 
-// Create main app
 const app = new Hono<{ Bindings: Bindings }>()
   .basePath("/api")
   .route("/auth", authRoutes)
